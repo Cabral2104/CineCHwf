@@ -13,7 +13,7 @@ namespace CineCHwf
 {
     public partial class Form1 : Form
     {
-        // Variable global para almacenar el ID del usuario autenticado
+        
         private int idUsuarioAutenticado = -1;
 
         public Form1()
@@ -27,13 +27,13 @@ namespace CineCHwf
 
             // Captura el evento para no permitir el cambio de pestaña si no se ha iniciado sesión
             tabControl1.SelectedIndexChanged += TabControl1_SelectedIndexChanged;
-            // Configuración de sucursales en el ComboBox
+            
             cmbSucursal.Items.Add(new { Text = "Cine Pape", Value = 1 });
             cmbSucursal.Items.Add(new { Text = "Cine Frontera", Value = 2 });
             cmbSucursal.Items.Add(new { Text = "Cine Castaños", Value = 3 });
             cmbSucursal.DisplayMember = "Text";
             cmbSucursal.ValueMember = "Value";
-            cmbSucursal.SelectedIndex = 0; // Selecciona la primera opción por defecto
+            cmbSucursal.SelectedIndex = 0; 
         }
 
         private void btnLogin_Click(object sender, EventArgs e)
@@ -78,8 +78,8 @@ namespace CineCHwf
         // Método para autenticar al usuario
         private bool AutenticarUsuario(SqlConnection connection)
         {
-            string username = txtUsername.Text;  // txtUsername es el TextBox donde se ingresa el usuario
-            string password = txtPassword.Text;  // txtPassword es el TextBox donde se ingresa la contraseña
+            string username = txtUsername.Text;  
+            string password = txtPassword.Text;  
 
             string query = "SELECT id FROM Usuario WHERE username = @username AND password = @password";
             SqlCommand command = new SqlCommand(query, connection);
@@ -91,8 +91,8 @@ namespace CineCHwf
                 SqlDataReader reader = command.ExecuteReader();
                 if (reader.HasRows)
                 {
-                    reader.Read();  // Leer el primer (y único) registro
-                    idUsuarioAutenticado = (int)reader["id"];  // Almacenar el ID del usuario autenticado
+                    reader.Read();  
+                    idUsuarioAutenticado = (int)reader["id"];  
                     MessageBox.Show("¡Bienvenido, " + username + "!");
                     return true;
                 }
@@ -111,7 +111,7 @@ namespace CineCHwf
 
         private void btnAgregar_Click(object sender, EventArgs e)
         {
-            // Verificar que todos los campos están llenos
+            
             if (string.IsNullOrEmpty(txtNombres.Text) || string.IsNullOrEmpty(txtApellidos.Text) ||
                 string.IsNullOrEmpty(txtRFC.Text) || string.IsNullOrEmpty(txtTelefono.Text))
             {
@@ -140,12 +140,12 @@ namespace CineCHwf
                         command.Parameters.AddWithValue("@apellidos", txtApellidos.Text);
                         command.Parameters.AddWithValue("@RFC", txtRFC.Text);
                         command.Parameters.AddWithValue("@telefono", txtTelefono.Text);
-                        command.Parameters.AddWithValue("@email", txtEmail.Text ?? (object)DBNull.Value); // Si el email es vacío, lo dejamos como NULL
-                        command.Parameters.AddWithValue("@fecha_registro", DateTime.Now); // La fecha de registro será la actual
-                        command.Parameters.AddWithValue("@status", 1); // Estado activo (1)
+                        command.Parameters.AddWithValue("@email", txtEmail.Text ?? (object)DBNull.Value); 
+                        command.Parameters.AddWithValue("@fecha_registro", DateTime.Now); 
+                        command.Parameters.AddWithValue("@status", 1); 
                         command.Parameters.AddWithValue("@id_Usuario_crea", idUsuarioAutenticado); 
 
-                        // Ejecutamos el comando
+                        
                         command.ExecuteNonQuery();
 
                         MessageBox.Show("Cliente agregado exitosamente.");
@@ -162,7 +162,7 @@ namespace CineCHwf
             // Cadena de conexión
             string connectionString = @"Server=localhost\SQLEXPRESS;Database=CineCH;Integrated Security=True;TrustServerCertificate=True;";
 
-            // Consulta SQL para obtener todos los clientes
+            
             string query = "SELECT id, nombres, apellidos, RFC, telefono, email, status FROM Cliente"; // Filtramos solo clientes activos
 
             try
@@ -170,32 +170,32 @@ namespace CineCHwf
                 // Crear una nueva conexión a la base de datos
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    // Crear el comando con la consulta
+                    
                     SqlDataAdapter dataAdapter = new SqlDataAdapter(query, connection);
 
-                    // Crear un DataTable para almacenar los resultados
+                    
                     DataTable dataTable = new DataTable();
 
-                    // Llenar el DataTable con los datos de la base de datos
+                    
                     dataAdapter.Fill(dataTable);
 
-                    // Asignar el DataTable al DataGridView para mostrar los datos
+                    
                     dgvClientes.DataSource = dataTable;
                 }
             }
             catch (Exception ex)
             {
-                // Mostrar mensaje de error si algo falla
+                
                 MessageBox.Show("Ocurrió un error al cargar los clientes: " + ex.Message);
             }
         }
 
         private void btnEditar_Click(object sender, EventArgs e)
         {
-            // Cadena de conexión
+            
             string connectionString = @"Server=localhost\SQLEXPRESS;Database=CineCH;Integrated Security=True;TrustServerCertificate=True;";
 
-            // Verificamos que haya un cliente seleccionado
+            
             if (dgvClientes.SelectedRows.Count == 0)
             {
                 MessageBox.Show("Por favor, selecciona un cliente para editar.");
@@ -205,19 +205,19 @@ namespace CineCHwf
             // Obtenemos el ID del cliente seleccionado
             int clienteId = (int)dgvClientes.SelectedRows[0].Cells["id"].Value;
 
-            // Recuperamos los nuevos datos de los campos de texto
+            
             string nombre = txtNombres.Text;
             string apellidos = txtApellidos.Text;
             string telefono = txtTelefono.Text;
             string rfc = txtRFC.Text;
             string email = txtEmail.Text;
-            bool status = chkStatus.Checked; // El nuevo estado (activo/inactivo)
+            bool status = chkStatus.Checked; 
 
             int idUsuarioEdita = idUsuarioAutenticado;
 
             List<string> setClauses = new List<string>();
 
-            // Variables para saber qué campos han sido editados
+           
             bool nombreEditado = !string.IsNullOrEmpty(nombre);
             bool apellidosEditado = !string.IsNullOrEmpty(apellidos);
             bool telefonoEditado = !string.IsNullOrEmpty(telefono);
@@ -228,7 +228,7 @@ namespace CineCHwf
             // Siempre actualizamos el id_Usuario_edita
             setClauses.Add("id_Usuario_edita = @idUsuarioEdita");
 
-            // Construimos el query de actualización, solo actualizando los campos editados
+            
             StringBuilder queryBuilder = new StringBuilder("UPDATE Cliente SET ");
 
             if (nombreEditado)
@@ -244,7 +244,7 @@ namespace CineCHwf
             if (statusEditado)
                 queryBuilder.Append("status = @status, ");
 
-            // Eliminamos la última coma y agregamos la condición WHERE
+            
             string query = queryBuilder.ToString().TrimEnd(',', ' ') + " WHERE id = @id";
 
            
@@ -271,17 +271,17 @@ namespace CineCHwf
                         if (statusEditado)
                             command.Parameters.AddWithValue("@status", status);
 
-                        // ID del cliente a editar
+                        
                         command.Parameters.AddWithValue("@id", clienteId);
 
-                        // Ejecutar la actualización
+                       
                         command.ExecuteNonQuery();
 
-                        // Mostrar mensaje de éxito
+                        
                         MessageBox.Show("Cliente editado correctamente.");
 
                         
-                        CargarClientes(); // Llama a una función para recargar el DataGridView
+                        CargarClientes(); 
                     }
                 }
                 catch (Exception ex)
@@ -307,7 +307,7 @@ namespace CineCHwf
                     DataTable dataTable = new DataTable();
                     dataAdapter.Fill(dataTable);
 
-                    dgvClientes.DataSource = dataTable;  // Asignar los datos al DataGridView
+                    dgvClientes.DataSource = dataTable;  
                 }
                 catch (Exception ex)
                 {
@@ -318,19 +318,19 @@ namespace CineCHwf
 
         private void btnAgrergarBoleto_Click(object sender, EventArgs e)
         {
-            // Validar que todos los campos estén llenos
+            
             if (string.IsNullOrEmpty(txtFechaCompra.Text) || string.IsNullOrEmpty(txtPrecio.Text) ||
-                string.IsNullOrEmpty(txtIdCliente.Text) || string.IsNullOrEmpty(txtIdTipoBoleto.Text))  // Agregado: validar id_Tipo_boleto
+                string.IsNullOrEmpty(txtIdCliente.Text) || string.IsNullOrEmpty(txtIdTipoBoleto.Text))  
             {
                 MessageBox.Show("Por favor, complete todos los campos.");
                 return;
             }
 
-            // Obtener los valores de los campos
+            
             DateTime fechaCompra = DateTime.Parse(txtFechaCompra.Text);
             int precio = int.Parse(txtPrecio.Text);
             int idCliente = int.Parse(txtIdCliente.Text);
-            int idTipoBoleto = int.Parse(txtIdTipoBoleto.Text);  // Obtener el id del tipo de boleto
+            int idTipoBoleto = int.Parse(txtIdTipoBoleto.Text);  
             int idUsuarioCreador = idUsuarioAutenticado;
 
             string connectionString = @"Server=localhost\SQLEXPRESS;Database=CineCH;Integrated Security=True;TrustServerCertificate=True;";
@@ -342,14 +342,14 @@ namespace CineCHwf
                     connection.Open();
 
                     string query = "INSERT INTO Boleto (fecha_compra, precio, id_cliente, id_Tipo_boleto, id_Usuario_crea) " +
-                                   "VALUES (@fechaCompra, @precio, @idCliente, @idTipoBoleto, @idUsuarioCreador)";  // Modificado para incluir id_Tipo_boleto
+                                   "VALUES (@fechaCompra, @precio, @idCliente, @idTipoBoleto, @idUsuarioCreador)";  
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@fechaCompra", fechaCompra);
                         command.Parameters.AddWithValue("@precio", precio);
                         command.Parameters.AddWithValue("@idCliente", idCliente);
-                        command.Parameters.AddWithValue("@idTipoBoleto", idTipoBoleto);  // Agregado para el tipo de boleto
+                        command.Parameters.AddWithValue("@idTipoBoleto", idTipoBoleto);  
                         command.Parameters.AddWithValue("@idUsuarioCreador", idUsuarioCreador);
 
                         command.ExecuteNonQuery();
@@ -366,7 +366,7 @@ namespace CineCHwf
 
         private void btnEditarBoleto_Click(object sender, EventArgs e)
         {
-            // Verificar que haya un boleto seleccionado
+            
             if (dgvBoletos.SelectedRows.Count == 0)
             {
                 MessageBox.Show("Por favor, selecciona un boleto para editar.");
@@ -380,7 +380,7 @@ namespace CineCHwf
             DateTime nuevaFechaCompra = DateTime.Parse(txtFechaCompra.Text);
             int nuevoPrecio = int.Parse(txtPrecio.Text);
             int nuevoIdCliente = int.Parse(txtIdCliente.Text);
-            int nuevoIdTipoBoleto = int.Parse(txtIdTipoBoleto.Text);  // Obtener el nuevo id del tipo de boleto
+            int nuevoIdTipoBoleto = int.Parse(txtIdTipoBoleto.Text);  
             int nuevoStatus = chkStatus.Checked ? 0 : 1;
             int idUsuarioEdita = idUsuarioAutenticado;
 
@@ -394,14 +394,13 @@ namespace CineCHwf
 
                     string query = "UPDATE Boleto SET fecha_compra = @nuevaFechaCompra, precio = @nuevoPrecio, id_cliente = @nuevoIdCliente, " +
                                    "id_Tipo_boleto = @nuevoIdTipoBoleto, status = @nuevoStatus, id_Usuario_edita = @idUsuarioEdita " +
-                                   "WHERE id = @boletoId";  // Modificado para incluir id_Tipo_boleto
-
+                                   "WHERE id = @boletoId";  
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@nuevaFechaCompra", nuevaFechaCompra);
                         command.Parameters.AddWithValue("@nuevoPrecio", nuevoPrecio);
                         command.Parameters.AddWithValue("@nuevoIdCliente", nuevoIdCliente);
-                        command.Parameters.AddWithValue("@nuevoIdTipoBoleto", nuevoIdTipoBoleto);  // Agregado para el tipo de boleto
+                        command.Parameters.AddWithValue("@nuevoIdTipoBoleto", nuevoIdTipoBoleto);  
                         command.Parameters.AddWithValue("@nuevoStatus", nuevoStatus);
                         command.Parameters.AddWithValue("@idUsuarioEdita", idUsuarioEdita);
                         command.Parameters.AddWithValue("@boletoId", boletoId);
@@ -411,7 +410,7 @@ namespace CineCHwf
                         if (rowsAffected > 0)
                         {
                             MessageBox.Show("Boleto editado correctamente.");
-                            CargarBoletos(); // Llama a una función para recargar el DataGridView
+                            CargarBoletos(); 
                         }
                         else
                         {
@@ -429,7 +428,7 @@ namespace CineCHwf
         {
             string connectionString = @"Server=localhost\SQLEXPRESS;Database=CineCH;Integrated Security=True;TrustServerCertificate=True;";
 
-            string query = "SELECT b.id, b.fecha_compra, b.precio, c.nombres, c.apellidos, b.status, b.id_Tipo_boleto " +  // Agregado id_Tipo_boleto
+            string query = "SELECT b.id, b.fecha_compra, b.precio, c.nombres, c.apellidos, b.status, b.id_Tipo_boleto " +  
                            "FROM Boleto b " +
                            "JOIN Cliente c ON b.id_cliente = c.id";
 
@@ -443,8 +442,8 @@ namespace CineCHwf
 
                     dgvBoletos.DataSource = dataTable;
 
-                    // Opcional: Si deseas cambiar el nombre de la columna 'id_Tipo_boleto' para que sea más amigable, puedes hacerlo aquí.
-                    dgvBoletos.Columns["id_Tipo_boleto"].HeaderText = "Tipo de Boleto ID"; // Cambiar el nombre de la columna
+                    
+                    dgvBoletos.Columns["id_Tipo_boleto"].HeaderText = "Tipo de Boleto ID"; 
                 }
             }
             catch (Exception ex)
@@ -465,7 +464,7 @@ namespace CineCHwf
 
         private void btnAgregarPago_Click(object sender, EventArgs e)
         {
-            // Validar que los campos no estén vacíos ni contengan solo espacios
+            
             if (string.IsNullOrWhiteSpace(txtMonto.Text) ||
                 string.IsNullOrWhiteSpace(txtMetodoPago.Text) ||
                 string.IsNullOrWhiteSpace(txtIdClientePago.Text))
@@ -474,21 +473,21 @@ namespace CineCHwf
                 return;
             }
 
-            // Validar que el monto sea un número válido
+            
             if (!int.TryParse(txtMonto.Text, out int monto))
             {
                 MessageBox.Show("Por favor, ingrese un monto válido.");
                 return;
             }
 
-            // Validar que el ID del cliente sea un número válido
+            
             if (!int.TryParse(txtIdClientePago.Text, out int idCliente))
             {
                 MessageBox.Show("Por favor, ingrese un ID de cliente válido.");
                 return;
             }
 
-            // Si pasa todas las validaciones, continúa con la conexión y ejecución
+            
             string connectionString = @"Server=localhost\SQLEXPRESS;Database=CineCH;Integrated Security=True;TrustServerCertificate=True;";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -506,7 +505,7 @@ namespace CineCHwf
                         command.Parameters.AddWithValue("@monto", monto);
                         command.Parameters.AddWithValue("@metodo_pago", txtMetodoPago.Text.Trim());
                         command.Parameters.AddWithValue("@id_cliente", idCliente);
-                        command.Parameters.AddWithValue("@status", 1); // Activo
+                        command.Parameters.AddWithValue("@status", 1); 
                         command.Parameters.AddWithValue("@id_Usuario_crea", idUsuarioAutenticado);
 
                         command.ExecuteNonQuery();
@@ -613,14 +612,14 @@ namespace CineCHwf
 
         private void btnAgregarReserva_Click(object sender, EventArgs e)
         {
-            // Validar que los campos no estén vacíos ni contengan solo espacios
+            
             if (string.IsNullOrWhiteSpace(txtIdClienteReserva.Text))
             {
                 MessageBox.Show("Por favor, complete todos los campos requeridos.");
                 return;
             }
 
-            // Validar que el ID del cliente sea un número válido
+            
             if (!int.TryParse(txtIdClienteReserva.Text, out int idCliente))
             {
                 MessageBox.Show("Por favor, ingrese un ID de cliente válido.");
@@ -642,7 +641,7 @@ namespace CineCHwf
                     {
                         command.Parameters.AddWithValue("@fecha_reserva", dtpFechaReserva.Value);
                         command.Parameters.AddWithValue("@id_cliente", idCliente);
-                        command.Parameters.AddWithValue("@status", 1); // Activo
+                        command.Parameters.AddWithValue("@status", 1); 
                         command.Parameters.AddWithValue("@id_Usuario_crea", idUsuarioAutenticado);
 
                         command.ExecuteNonQuery();
@@ -655,7 +654,7 @@ namespace CineCHwf
                 }
             }
 
-            // Actualizar el DataGridView
+            
             CargarReservas();
         }
 
@@ -691,7 +690,7 @@ namespace CineCHwf
                         command.Parameters.AddWithValue("@id_Usuario_edita", idUsuarioAutenticado);
                         command.Parameters.AddWithValue("@id", reservaId);
 
-                        // Ejecutamos la consulta
+                        
                         command.ExecuteNonQuery();
                         MessageBox.Show("Reserva editada correctamente.");
                     }
@@ -702,7 +701,7 @@ namespace CineCHwf
                 }
             }
 
-            // Actualizamos el DataGridView con los cambios
+            
             CargarReservas();
         }
 
@@ -735,31 +734,31 @@ namespace CineCHwf
 
         private void btnAgregarPromocion_Click(object sender, EventArgs e)
         {
-            // Validación de campos vacíos
+            
             if (string.IsNullOrWhiteSpace(txtDescripcion.Text) || string.IsNullOrWhiteSpace(txtDescuento.Text))
             {
                 MessageBox.Show("Por favor, complete todos los campos.");
                 return;
             }
 
-            // Validar descuento (debe ser un número válido)
+            
             if (!int.TryParse(txtDescuento.Text, out int descuento))
             {
                 MessageBox.Show("Por favor, ingrese un descuento válido.");
                 return;
             }
 
-            // Obtener valores de los controles
+            
             string descripcion = txtDescripcion.Text;
             DateTime fechaInicio = dtpFechaInicio.Value;
             DateTime fechaFin = dtpFechaFin.Value;
-            bool status = chkStatusPromocion.Checked; // Estado activo (1) o inactivo (0)
+            bool status = chkStatusPromocion.Checked; 
             int idUsuarioCrea = idUsuarioAutenticado;
 
-            // Cadena de conexión
+            
             string connectionString = @"Server=localhost\SQLEXPRESS;Database=CineCH;Integrated Security=True;TrustServerCertificate=True;";
 
-            // Conexión y comando SQL para agregar la promoción
+            
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 try
@@ -789,7 +788,7 @@ namespace CineCHwf
                 }
             }
 
-            // Recargar promociones
+            
             CargarPromociones();
 
         }
@@ -801,24 +800,24 @@ namespace CineCHwf
 
         private void btnEditarPromocion_Click(object sender, EventArgs e)
         {
-            // Verificar si hay una fila seleccionada
+            
             if (dgvPromociones.SelectedRows.Count == 0)
             {
                 MessageBox.Show("Por favor, selecciona una promoción para editar.");
                 return;
             }
 
-            // Obtener el ID de la promoción seleccionada
+            
             int promocionId = (int)dgvPromociones.SelectedRows[0].Cells["id"].Value;
 
-            // Obtener los valores actuales de la promoción seleccionada para no modificarlos si el campo está vacío
+            
             string descripcion = dgvPromociones.SelectedRows[0].Cells["descripcion"].Value.ToString();
             DateTime fechaInicio = (DateTime)dgvPromociones.SelectedRows[0].Cells["fecha_inicio"].Value;
             DateTime fechaFin = (DateTime)dgvPromociones.SelectedRows[0].Cells["fecha_fin"].Value;
             int descuento = (int)dgvPromociones.SelectedRows[0].Cells["descuento"].Value;
             bool status = (bool)dgvPromociones.SelectedRows[0].Cells["status"].Value;
 
-            // Verificar campos que el usuario haya llenado
+            
             if (!string.IsNullOrWhiteSpace(txtDescripcion.Text))
                 descripcion = txtDescripcion.Text;
 
@@ -834,7 +833,7 @@ namespace CineCHwf
             if (chkStatusPromocion.Checked != status)
                 status = chkStatusPromocion.Checked;
 
-            // Cadena de conexión
+            
             string connectionString = @"Server=localhost\SQLEXPRESS;Database=CineCH;Integrated Security=True;TrustServerCertificate=True;";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -848,7 +847,7 @@ namespace CineCHwf
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
-                        // Agregar parámetros solo si han sido modificados
+                       
                         command.Parameters.AddWithValue("@descripcion", descripcion);
                         command.Parameters.AddWithValue("@fecha_inicio", fechaInicio);
                         command.Parameters.AddWithValue("@fecha_fin", fechaFin);
@@ -857,7 +856,7 @@ namespace CineCHwf
                         command.Parameters.AddWithValue("@id_Usuario_edita", idUsuarioAutenticado);
                         command.Parameters.AddWithValue("@id", promocionId);
 
-                        // Ejecutar la actualización
+                        
                         command.ExecuteNonQuery();
                         MessageBox.Show("Promoción editada correctamente.");
                     }
@@ -868,7 +867,7 @@ namespace CineCHwf
                 }
             }
 
-            // Recargar promociones
+            
             CargarPromociones();
         }
         private void CargarPromociones()
@@ -896,37 +895,37 @@ namespace CineCHwf
 
         private void btnAgregarProveedor_Click(object sender, EventArgs e)
         {
-            // Verificar que todos los campos están llenos
+            
             if (string.IsNullOrEmpty(txtNombreProveedor.Text) || string.IsNullOrEmpty(txtTelefonoProveedor.Text))
             {
                 MessageBox.Show("Por favor, complete todos los campos.");
                 return;
             }
 
-            // Cadena de conexión
+            
             string connectionString = @"Server=localhost\SQLEXPRESS;Database=CineCH;Integrated Security=True;TrustServerCertificate=True;";
 
-            // Crear la conexión
+            
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 try
                 {
                     connection.Open();
 
-                    // Comando para insertar un nuevo proveedor
+                    
                     string query = "INSERT INTO Proveedor (nombre, telefono, email, status, id_Usuario_crea) " +
                                    "VALUES (@nombre, @telefono, @email, @status, @id_Usuario_crea)";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
-                        // Asignamos los valores de los TextBox a los parámetros del SQL
+                        
                         command.Parameters.AddWithValue("@nombre", txtNombreProveedor.Text);
                         command.Parameters.AddWithValue("@telefono", txtTelefonoProveedor.Text);
-                        command.Parameters.AddWithValue("@email", txtEmailProveedor.Text ?? (object)DBNull.Value); // Si el email es vacío, lo dejamos como NULL
-                        command.Parameters.AddWithValue("@status", 1); // Estado activo (1)
-                        command.Parameters.AddWithValue("@id_Usuario_crea", idUsuarioAutenticado); // ID del usuario que crea
+                        command.Parameters.AddWithValue("@email", txtEmailProveedor.Text ?? (object)DBNull.Value); 
+                        command.Parameters.AddWithValue("@status", 1); 
+                        command.Parameters.AddWithValue("@id_Usuario_crea", idUsuarioAutenticado); 
 
-                        // Ejecutamos el comando
+                        
                         command.ExecuteNonQuery();
 
                         MessageBox.Show("Proveedor agregado exitosamente.");
@@ -938,23 +937,23 @@ namespace CineCHwf
                 }
             }
 
-            // Recargar el DataGridView
+            
             CargarProveedores();
         }
 
         private void btnEditarProveedor_Click(object sender, EventArgs e)
         {
-            // Verificamos que haya un proveedor seleccionado
+            
             if (dgvProveedores.SelectedRows.Count == 0)
             {
                 MessageBox.Show("Por favor, selecciona un proveedor para editar.");
                 return;
             }
 
-            // Obtenemos el ID del proveedor seleccionado
+           
             int proveedorId = (int)dgvProveedores.SelectedRows[0].Cells["id"].Value;
 
-            // Verificamos que al menos uno de los campos a editar tenga datos
+            
             if (string.IsNullOrWhiteSpace(txtNombreProveedor.Text) && string.IsNullOrWhiteSpace(txtTelefonoProveedor.Text) && string.IsNullOrWhiteSpace(txtEmailProveedor.Text))
             {
                 MessageBox.Show("Por favor, ingrese al menos un campo para editar.");
@@ -969,10 +968,10 @@ namespace CineCHwf
                 {
                     connection.Open();
 
-                    // Comienza la construcción de la consulta
+                   
                     string query = "UPDATE Proveedor SET ";
 
-                    // Verificamos qué campos fueron editados y construimos el query de forma dinámica
+                    
                     List<string> setClauses = new List<string>();
                     if (!string.IsNullOrWhiteSpace(txtNombreProveedor.Text))
                         setClauses.Add("nombre = @nombre");
@@ -982,15 +981,15 @@ namespace CineCHwf
                         setClauses.Add("email = @email");
                     setClauses.Add("id_Usuario_edita = @id_Usuario_edita");
 
-                    // Agregar el campo `status` a la consulta si fue modificado
+                    
                     setClauses.Add("status = @status");
 
-                    // Concatenamos las condiciones SET de forma dinámica
+                    
                     query += string.Join(", ", setClauses) + " WHERE id = @id";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
-                        // Agregamos los parámetros solo si los campos fueron modificados
+                        
                         if (!string.IsNullOrWhiteSpace(txtNombreProveedor.Text))
                             command.Parameters.AddWithValue("@nombre", txtNombreProveedor.Text);
                         if (!string.IsNullOrWhiteSpace(txtTelefonoProveedor.Text))
@@ -998,10 +997,10 @@ namespace CineCHwf
                         if (!string.IsNullOrWhiteSpace(txtEmailProveedor.Text))
                             command.Parameters.AddWithValue("@email", txtEmailProveedor.Text);
                         command.Parameters.AddWithValue("@id_Usuario_edita", idUsuarioAutenticado);
-                        command.Parameters.AddWithValue("@status", chkStatusProveedor.Checked ? 1 : 0);  // Cambiar el estado según el CheckBox
+                        command.Parameters.AddWithValue("@status", chkStatusProveedor.Checked ? 1 : 0);  
                         command.Parameters.AddWithValue("@id", proveedorId);
 
-                        // Ejecutamos el comando
+                        
                         command.ExecuteNonQuery();
 
                         MessageBox.Show("Proveedor editado exitosamente.");
@@ -1013,7 +1012,7 @@ namespace CineCHwf
                 }
             }
 
-            // Recargar el DataGridView
+            
             CargarProveedores();
         }
 
@@ -1023,10 +1022,10 @@ namespace CineCHwf
         }
         private void CargarProveedores()
         {
-            // Cadena de conexión
+            
             string connectionString = @"Server=localhost\SQLEXPRESS;Database=CineCH;Integrated Security=True;TrustServerCertificate=True;";
 
-            // Consulta SQL para obtener todos los proveedores
+            
             string query = "SELECT id, nombre, telefono, email, status FROM Proveedor";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -1038,7 +1037,7 @@ namespace CineCHwf
                     DataTable dataTable = new DataTable();
                     dataAdapter.Fill(dataTable);
 
-                    dgvProveedores.DataSource = dataTable;  // Asignar los datos al DataGridView
+                    dgvProveedores.DataSource = dataTable;  
                 }
                 catch (Exception ex)
                 {
